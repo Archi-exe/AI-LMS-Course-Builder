@@ -28,28 +28,45 @@ async function loadCourses() {
 courseForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const topicInput = document.querySelector("#topic");
+  const buildButton = courseForm.querySelector("button");
 
-  const response = await fetch("/api/courses", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ topic: topicInput.value })
-  });
+  buildButton.disabled = true;
+  buildButton.innerHTML = "Generating...";
 
-  const result = await response.json();
-  const content = result.content;
-  generatedCourse.classList.remove("hidden");
-  generatedCourse.innerHTML = `
-    <p class="eyebrow">YOUR NEW COURSE</p>
-    <h2>${result.course.title}</h2>
-    <p>${content.overview}</p>
-    <div class="generated-columns">
-      <div><h3>Lessons</h3><ol>${content.lessons.map((lesson) => `<li>${lesson}</li>`).join("")}</ol></div>
-      <div><h3>Quick quiz</h3><ol>${content.quiz.map((question) => `<li>${question}</li>`).join("")}</ol></div>
-    </div>
-  `;
+  try {
+    const response = await fetch("/api/courses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: topicInput.value })
+    });
 
-  topicInput.value = "";
-  loadCourses();
+    if (!response.ok) {
+      throw new Error("The server could not create the course.");
+    }
+
+    const result = await response.json();
+    const content = result.content;
+    generatedCourse.classList.remove("hidden");
+    generatedCourse.innerHTML = `
+      <p class="eyebrow">YOUR NEW COURSE</p>
+      <h2>${result.course.title}</h2>
+      <p>${content.overview}</p>
+      <div class="generated-columns">
+        <div><h3>Lessons</h3><ol>${content.lessons.map((lesson) => `<li>${lesson}</li>`).join("")}</ol></div>
+        <div><h3>Quick quiz</h3><ol>${content.quiz.map((question) => `<li>${question}</li>`).join("")}</ol></div>
+      </div>
+    `;
+
+    topicInput.value = "";
+    await loadCourses();
+    generatedCourse.scrollIntoView({ behavior: "smooth" });
+  } catch (error) {
+    generatedCourse.classList.remove("hidden");
+    generatedCourse.innerHTML = `<h2>Something went wrong</h2><p>${error.message}</p>`;
+  } finally {
+    buildButton.disabled = false;
+    buildButton.innerHTML = "Build course <span>✦</span>";
+  }
 });
 
 loadCourses();
