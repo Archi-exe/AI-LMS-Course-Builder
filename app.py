@@ -77,7 +77,26 @@ def create_course():
     database.commit()
     new_course = database.execute("SELECT * FROM courses ORDER BY id DESC LIMIT 1").fetchone()
     database.close()
-    return jsonify(dict(new_course)), 201
+
+    # This is our first simple course generator.
+    # Later, we can replace this with a real AI API.
+    generated_content = {
+        "overview": f"This beginner course introduces the main ideas behind {topic}.",
+        "lessons": [
+            f"What is {topic}? Learn the basic meaning and important vocabulary.",
+            f"How does {topic} work? Explore the main parts with a simple example.",
+            f"Why is {topic} useful? Review real-world uses and common mistakes."
+        ],
+        "quiz": [
+            f"What is the main idea behind {topic}?",
+            f"Can you explain one real-world use of {topic}?"
+        ]
+    }
+
+    return jsonify({
+        "course": dict(new_course),
+        "content": generated_content
+    }), 201
 
 
 if __name__ == "__main__":

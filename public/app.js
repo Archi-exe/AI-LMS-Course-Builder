@@ -2,6 +2,7 @@
 
 const courseList = document.querySelector("#course-list");
 const courseForm = document.querySelector("#course-form");
+const generatedCourse = document.querySelector("#generated-course");
 
 // This function draws each course card on the page.
 function showCourses(courses) {
@@ -28,11 +29,24 @@ courseForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const topicInput = document.querySelector("#topic");
 
-  await fetch("/api/courses", {
+  const response = await fetch("/api/courses", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ topic: topicInput.value })
   });
+
+  const result = await response.json();
+  const content = result.content;
+  generatedCourse.classList.remove("hidden");
+  generatedCourse.innerHTML = `
+    <p class="eyebrow">YOUR NEW COURSE</p>
+    <h2>${result.course.title}</h2>
+    <p>${content.overview}</p>
+    <div class="generated-columns">
+      <div><h3>Lessons</h3><ol>${content.lessons.map((lesson) => `<li>${lesson}</li>`).join("")}</ol></div>
+      <div><h3>Quick quiz</h3><ol>${content.quiz.map((question) => `<li>${question}</li>`).join("")}</ol></div>
+    </div>
+  `;
 
   topicInput.value = "";
   loadCourses();
