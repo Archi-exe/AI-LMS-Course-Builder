@@ -6,7 +6,9 @@ from flask import Flask, jsonify, request, send_from_directory
 import sqlite3
 import os
 
-app = Flask(__name__, static_folder="public")
+# The empty static URL means /style.css and /app.js work directly.
+# This matches the simple links inside index.html.
+app = Flask(__name__, static_folder="public", static_url_path="")
 DATABASE_NAME = "learning.db"
 
 
