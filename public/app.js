@@ -12,9 +12,32 @@ function showCourses(courses) {
       <div class="course-card-top"><h3>${course.title}</h3><span class="course-tag">IN PROGRESS</span></div>
       <p>${course.subject} · ${course.lessons} lessons</p>
       <div class="progress-line"><span style="width: ${course.progress}%"></span></div>
-      <div class="course-footer"><span>${course.progress}% complete</span><strong>Continue →</strong></div>
+      <div class="course-footer"><span>${course.progress}% complete</span><button class="continue-button" data-course-id="${course.id}">Continue →</button></div>
     </article>
   `).join("");
+
+  // Each Continue button opens a simple learning view.
+  document.querySelectorAll(".continue-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const course = courses.find((item) => item.id === Number(button.dataset.courseId));
+      showCourseDetails(course);
+    });
+  });
+}
+
+// This shows a lesson area when the student clicks Continue.
+function showCourseDetails(course) {
+  generatedCourse.classList.remove("hidden");
+  generatedCourse.innerHTML = `
+    <p class="eyebrow">LEARNING VIEW</p>
+    <h2>${course.title}</h2>
+    <p>Welcome back. Choose a lesson to continue learning.</p>
+    <div class="generated-columns">
+      <div><h3>Lesson 1</h3><p>Start with the basic ideas and important vocabulary for this course.</p><button class="lesson-button">Start lesson →</button></div>
+      <div><h3>Quick check</h3><p>Test yourself after the lesson and see what you remember.</p><button class="lesson-button">Take quiz →</button></div>
+    </div>
+  `;
+  generatedCourse.scrollIntoView({ behavior: "smooth" });
 }
 
 // This asks the backend for the courses when the page opens.
